@@ -8,6 +8,7 @@ This bundle offers functionality for sanitizing filenames, i.e. replacing unwant
   - valid alphabets (the characters which are valid in the end -> "whitelist")
   - trimming
   - replacing of repeating (consecutive) hyphens or underscores
+- service is also available for various other use cases besides file upload
 
 ## Installation
 
