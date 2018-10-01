@@ -11,8 +11,8 @@ namespace HeimrichHannot\FilenameSanitizerBundle\Test\ContaoManager;
 use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\ManagerPlugin\Bundle\Parser\DelegatingParser;
 use Contao\TestCase\ContaoTestCase;
+use HeimrichHannot\FilenameSanitizerBundle\ContaoManager\Plugin;
 use HeimrichHannot\FilenameSanitizerBundle\HeimrichHannotContaoFilenameSanitizerBundle;
-use HeimrichHannot\ListBundle\ContaoManager\Plugin;
 
 class PluginTest extends ContaoTestCase
 {

@@ -7,3 +7,7 @@ services:
     class: HeimrichHannot\FilenameSanitizerBundle\EventListener\HookListener
     public: true
     autowire: true
+  huh.filename_sanitizer.util.filename_sanitizer:
+    class: HeimrichHannot\FilenameSanitizerBundle\Util\FilenameSanitizerUtil
+    public: true
+    autowire: true

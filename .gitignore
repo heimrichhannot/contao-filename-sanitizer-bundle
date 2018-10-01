@@ -3,6 +3,6 @@ Thumbs.db
 .DS_Store
 .sass-cache
 /vendor
-component
+/component
 composer.lock
 composer.json~
