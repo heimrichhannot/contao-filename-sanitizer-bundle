@@ -1,11 +1,16 @@
 <?php
 
+/*
+ * Copyright (c) 2018 Heimrich & Hannot GmbH
+ *
+ * @license LGPL-3.0-or-later
+ */
+
 namespace HeimrichHannot\FilenameSanitizerBundle\DataContainer;
 
 use Contao\Config;
 use Contao\CoreBundle\Framework\FrameworkAwareInterface;
 use Contao\CoreBundle\Framework\FrameworkAwareTrait;
-use Contao\DataContainer;
 use Contao\StringUtil;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -20,51 +25,40 @@ class Settings implements FrameworkAwareInterface, ContainerAwareInterface
     const NUMBERS = 'numbers';
     const SPECIAL_CHARS = 'specialChars';
 
-    const DEFAULT_ALPHABETS = [
-        self::CAPITAL_LETTERS,
-        self::SMALL_LETTERS,
-        self::NUMBERS,
+    const DEFAULTS = [
+        'fs_replaceChar' => '-',
+        'fs_validAlphabets' => [
+            self::CAPITAL_LETTERS,
+            self::SMALL_LETTERS,
+            self::NUMBERS,
+            self::SPECIAL_CHARS,
+        ],
+        'fs_validSpecialChars' => '_-',
+        'fs_trim' => true,
+        'fs_trimChars' => '-_.,',
+        'fs_condenseSeparators' => true,
     ];
 
-    const DEFAULT_RULES = [
-        self::CAPITAL_LETTERS,
-        self::SMALL_LETTERS,
-        self::NUMBERS,
-    ];
+    const SEPERATORS = ['--', '__', '––'];
+    const DOUBLE_SEPERATORS = ['--', '__', '––'];
 
-    const DEFAULT_ALLOWED_SPECIAL_CHARS = '[=<>()#/]';
-
-    public function getRulesAsOptions(DataContainer $dc)
+    public function modifyDca()
     {
-        $ruleOptions = [];
+        $dca = &$GLOBALS['TL_DCA']['tl_settings'];
+        $alphabets = StringUtil::deserialize(Config::get('fs_validAlphabets'), true);
 
-        $alphabets = StringUtil::deserialize(Config::get('fs_alphabets'), true);
-        $types     = [
-            static::CAPITAL_LETTERS,
-            static::SMALL_LETTERS,
-            static::NUMBERS,
-            static::SPECIAL_CHARS
-        ];
-
-        foreach ($types as $type)
-        {
-            if (in_array($type, $alphabets))
-            {
-                $ruleOptions[] = $type;
-            }
+        if (!\in_array(static::SPECIAL_CHARS, $alphabets)) {
+            $dca['palettes']['default'] = str_replace('fs_validSpecialChars', '', $dca['palettes']['default']);
         }
-
-        return $ruleOptions;
     }
 
-    public function modifyPalette()
+    public function setDefaults()
     {
-        $dca        = &$GLOBALS['TL_DCA']['tl_code_config'];
-        $alphabets  = StringUtil::deserialize(Config::get('fs_alphabets'), true);
-
-        if (!in_array(static::SPECIAL_CHARS, $alphabets))
-        {
-            $dca['palettes']['default'] = str_replace('allowedSpecialChars', '', $dca['palettes']['default']);
+        foreach (static::DEFAULTS as $field => $value) {
+            if (null === Config::get($field)) {
+                Config::persist($field, \is_array($value) ? serialize($value) : $value);
+                Config::set($field, \is_array($value) ? serialize($value) : $value);
+            }
         }
     }
 }

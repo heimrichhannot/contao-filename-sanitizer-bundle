@@ -1,46 +1,74 @@
 <?php
 
 $dca = &$GLOBALS['TL_DCA']['tl_settings'];
+$settingsService = System::getContainer()->get('huh.filename_sanitizer.data_container.settings');
+
+/**
+ * Callbacks
+ */
+$dca['config']['onload_callback']['filenameSanitizer'] = ['huh.filename_sanitizer.data_container.settings', 'modifyDca'];
 
 /**
  * Palettes
  */
-$dca['palettes']['default'] = str_replace('gdMaxImgHeight', 'gdMaxImgHeight,fs_validAlphabets,fs_rules', $dca['palettes']['default']);
+$dca['palettes']['__selector__'][] = 'fs_trim';
+
+$dca['palettes']['default'] = str_replace('{uploads_legend', '{filename_sanitizer_legend},fs_validAlphabets,fs_validSpecialChars,fs_replaceChar,fs_condenseSeparators,fs_trim;{uploads_legend', $dca['palettes']['default']);
+
+/**
+ * Subpalettes
+ */
+$dca['subpalettes']['fs_trim'] = 'fs_trimChars';
 
 /**
  * Fields
  */
 $fields = [
-    'fs_validAlphabets' => [
-        'label'                   => &$GLOBALS['TL_LANG']['tl_settings']['fs_validAlphabets'],
-        'exclude'                 => true,
-        'options' => [
-            System::getContainer()->get('huh.filename_sanitizer.data_container.settings')::CAPITAL_LETTERS,
-            System::getContainer()->get('huh.filename_sanitizer.data_container.settings')::SMALL_LETTERS,
-            System::getContainer()->get('huh.filename_sanitizer.data_container.settings')::NUMBERS,
-            System::getContainer()->get('huh.filename_sanitizer.data_container.settings')::SPECIAL_CHARS
+    'fs_validAlphabets'      => [
+        'label'     => &$GLOBALS['TL_LANG']['tl_settings']['fs_validAlphabets'],
+        'exclude'   => true,
+        'options'   => [
+            $settingsService::CAPITAL_LETTERS,
+            $settingsService::SMALL_LETTERS,
+            $settingsService::NUMBERS,
+            $settingsService::SPECIAL_CHARS
         ],
-        'inputType'               => 'checkbox',
-        'eval'                    => ['tl_class' => 'w50', 'multiple' => true, 'submitOnChange' => true],
-        'sql'                     => "char(1) NOT NULL default ''"
+        'reference' => &$GLOBALS['TL_LANG']['tl_settings']['reference']['filenameSanitizerBundle']['validAlphabets'],
+        'inputType' => 'checkbox',
+        'eval'      => ['tl_class' => 'w50 autoheight', 'multiple' => true, 'submitOnChange' => true],
     ],
-    'fs_rules'                => [
-        'label'            => &$GLOBALS['TL_LANG']['tl_settings']['fs_rules'],
-        'exclude'          => true,
-        'inputType'        => 'checkbox',
-        'options_callback' => ['huh.code_generator.backend.code_config', 'getRulesAsOptions'],
-        'reference'        => &$GLOBALS['TL_LANG']['tl_code_config']['reference']['rules'],
-        'eval'             => ['multiple' => true, 'tl_class' => 'w50'],
-        'sql'              => "blob NULL"
-    ],
-    'fs_allowedSpecialChars'  => [
-        'label'     => &$GLOBALS['TL_LANG']['tl_settings']['fs_allowedSpecialChars'],
+    'fs_validSpecialChars' => [
+        'label'     => &$GLOBALS['TL_LANG']['tl_settings']['fs_validSpecialChars'],
         'exclude'   => true,
         'inputType' => 'text',
-        'default'   => '[=<>()#/]',
-        'eval'      => ['tl_class' => 'w50 clr'],
-        'sql'       => "varchar(255) NOT NULL default ''"
-    ]
+        'eval'      => ['tl_class' => 'w50'],
+    ],
+    'fs_replaceChar' => [
+        'label'                   => &$GLOBALS['TL_LANG']['tl_settings']['fs_replaceChar'],
+        'exclude'                 => true,
+        'inputType'               => 'text',
+        'eval'                    => ['maxlength' => 8, 'tl_class' => 'w50 clr'],
+    ],
+    'fs_condenseSeparators' => [
+        'label'                   => &$GLOBALS['TL_LANG']['tl_settings']['fs_condenseSeparators'],
+        'exclude'                 => true,
+        'inputType'               => 'checkbox',
+        'eval'                    => ['tl_class' => 'w50'],
+    ],
+    'fs_trim' => [
+        'label'                   => &$GLOBALS['TL_LANG']['tl_settings']['fs_trim'],
+        'exclude'                 => true,
+        'inputType'               => 'checkbox',
+        'eval'                    => ['tl_class' => 'w50 clr', 'submitOnChange' => true],
+    ],
+    'fs_trimChars' => [
+        'label'     => &$GLOBALS['TL_LANG']['tl_settings']['fs_trimChars'],
+        'exclude'   => true,
+        'inputType' => 'text',
+        'eval'      => ['tl_class' => 'w50'],
+    ],
 ];
 
 $dca['fields'] += $fields;
+
+$settingsService->setDefaults();
