@@ -1,0 +1,5 @@
+services:
+  huh.filename_sanitizer.data_container.settings:
+    class: HeimrichHannot\FilenameSanitizerBundle\DataContainer\Settings
+    public: true
+    autowire: true
