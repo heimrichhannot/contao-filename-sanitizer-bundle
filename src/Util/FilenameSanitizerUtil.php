@@ -27,33 +27,48 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
         $alphabets = StringUtil::deserialize(Config::get('fs_validAlphabets'), true);
         $settingsService = System::getContainer()->get('huh.filename_sanitizer.data_container.settings');
 
-        if (\in_array($settingsService::SMALL_LETTERS, $alphabets)) {
-            $regExp .= 'az';
+        if (\in_array($settingsService::SMALL_LETTERS, $alphabets) && \in_array($settingsService::CAPITAL_LETTERS, $alphabets)) {
+            $regExp .= 'a-zA-Z';
         }
 
-        if (\in_array($settingsService::CAPITAL_LETTERS, $alphabets)) {
-            $regExp .= 'AZ';
+        if (!\in_array($settingsService::SMALL_LETTERS, $alphabets) && \in_array($settingsService::CAPITAL_LETTERS, $alphabets)) {
+            $string = strtoupper($string);
+            $regExp .= 'A-Z';
+        }
+
+        if (\in_array($settingsService::SMALL_LETTERS, $alphabets) && !\in_array($settingsService::CAPITAL_LETTERS, $alphabets)) {
+            $string = strtolower($string);
+            $regExp .= 'a-z';
         }
 
         if (\in_array($settingsService::NUMBERS, $alphabets)) {
-            $regExp .= '09';
+            $regExp .= '0-9';
         }
 
         if (\in_array($settingsService::SPECIAL_CHARS, $alphabets)) {
-            $regExp .= Config::get('fs_validSpecialChars');
+            $regExp .= preg_quote(Config::get('fs_validSpecialChars'));
         }
 
-        $string = preg_replace('/[^'.$regExp.']/i', Config::get('fs_replaceChar'), $string);
+        if (!$regExp) {
+            return $string;
+        }
+
+        $string = preg_replace('/[^'.$regExp.']/', Config::get('fs_replaceChar'), $string);
 
         if (Config::get('fs_condenseSeparators')) {
-            while (false !== strpos($string, $settingsService::DOUBLE_SEPERATORS)) {
-                $string = str_replace($settingsService::DOUBLE_SEPERATORS, $settingsService::SEPERATORS, $string);
+            foreach ($settingsService::DOUBLE_SEPERATORS as $doubleSeperator) {
+                while (false !== strpos($string, $doubleSeperator)) {
+                    $string = str_replace($doubleSeperator, substr($doubleSeperator, 0, 1), $string);
+                }
             }
         }
 
         if (Config::get('fs_trim')) {
-            $string = trim($string, Config::get('fs_trimChars'));
+            // in any case trim spaces and the replace character
             $string = trim($string);
+            $string = trim($string, Config::get('fs_replaceChar'));
+
+            $string = trim($string, Config::get('fs_trimChars'));
         }
 
         return $string;

@@ -28,12 +28,11 @@ class Settings implements FrameworkAwareInterface, ContainerAwareInterface
     const DEFAULTS = [
         'fs_replaceChar' => '-',
         'fs_validAlphabets' => [
-            self::CAPITAL_LETTERS,
             self::SMALL_LETTERS,
             self::NUMBERS,
             self::SPECIAL_CHARS,
         ],
-        'fs_validSpecialChars' => '_-',
+        'fs_validSpecialChars' => '-',
         'fs_trim' => true,
         'fs_trimChars' => '-_.,',
         'fs_condenseSeparators' => true,
