@@ -47,7 +47,7 @@ $fields = [
         'label'                   => &$GLOBALS['TL_LANG']['tl_settings']['fs_replaceChar'],
         'exclude'                 => true,
         'inputType'               => 'text',
-        'eval'                    => ['maxlength' => 8, 'tl_class' => 'w50 clr'],
+        'eval'                    => ['maxlength' => 1, 'tl_class' => 'w50 clr'],
     ],
     'fs_condenseSeparators' => [
         'label'                   => &$GLOBALS['TL_LANG']['tl_settings']['fs_condenseSeparators'],
@@ -70,5 +70,3 @@ $fields = [
 ];
 
 $dca['fields'] += $fields;
-
-$settingsService->setDefaults();

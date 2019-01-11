@@ -4,6 +4,8 @@ This bundle offers functionality for sanitizing filenames, i.e. replacing unwant
 
 ## Features
 
+- sanitize filenames while uploading files using the Contao file manager
+- sanitize filenames while saving a given file using the Contao file manager
 - configurable sanitizing rules:
   - valid alphabets (the characters which are valid in the end -> "whitelist")
   - trimming

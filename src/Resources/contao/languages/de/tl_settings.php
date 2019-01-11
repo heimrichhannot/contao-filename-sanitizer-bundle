@@ -15,7 +15,7 @@ $lang['fs_condenseSeparators'][0] = 'Trennzeichen zusammenfassen (Bindestrich, U
 $lang['fs_condenseSeparators'][1] = 'Wählen Sie diese Option, wenn aufeinanderfolgende Trennzeichen zusammenefasst werden sollen (aus "_____" wird bspw. "_").';
 $lang['fs_trim'][0]               = 'Führende und schließende Zeichen entfernen';
 $lang['fs_trim'][1]               = 'Wählen Sie diese Option, wenn führende und schließende Zeichen entfernt werden sollen (bspw. Leerzeichen).';
-$lang['fs_trimChars'][0]          = 'Zu entfernende führende und schließende Zeichen Zeichen (Leerzeichen werden immer entfernt; direkt hintereinander, nicht durch Komma oder Leerzeichen trennen!)';
+$lang['fs_trimChars'][0]          = 'Zu entfernende führende und schließende Zeichen (Leerzeichen werden immer entfernt; direkt hintereinander, nicht durch Kommata oder Leerzeichen trennen!)';
 $lang['fs_trimChars'][1]          = 'Bitte geben Sie eine Liste von Zeichen ein. WICHTIG: Trennen Sie die Zeichen voneinander!';
 
 /**

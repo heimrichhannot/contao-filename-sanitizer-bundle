@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2018 Heimrich & Hannot GmbH
+ * Copyright (c) 2019 Heimrich & Hannot GmbH
  *
  * @license LGPL-3.0-or-later
  */
@@ -30,15 +30,13 @@ class Settings implements FrameworkAwareInterface, ContainerAwareInterface
         'fs_validAlphabets' => [
             self::SMALL_LETTERS,
             self::NUMBERS,
-            self::SPECIAL_CHARS,
         ],
         'fs_validSpecialChars' => '-',
         'fs_trim' => true,
-        'fs_trimChars' => '-_.,',
+        'fs_trimChars' => '-_.,;|',
         'fs_condenseSeparators' => true,
     ];
 
-    const SEPERATORS = ['--', '__', '––'];
     const DOUBLE_SEPERATORS = ['--', '__', '––'];
 
     public function modifyDca()

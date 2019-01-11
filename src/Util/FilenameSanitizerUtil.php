@@ -1,16 +1,17 @@
 <?php
 
 /*
- * Copyright (c) 2018 Heimrich & Hannot GmbH
+ * Copyright (c) 2019 Heimrich & Hannot GmbH
  *
  * @license LGPL-3.0-or-later
  */
 
-namespace HeimrichHannot\FilenameSanitizerBundle\EventListener;
+namespace HeimrichHannot\FilenameSanitizerBundle\Util;
 
 use Contao\Config;
 use Contao\CoreBundle\Framework\FrameworkAwareInterface;
 use Contao\CoreBundle\Framework\FrameworkAwareTrait;
+use Contao\File;
 use Contao\StringUtil;
 use Contao\System;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -72,5 +73,17 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
         }
 
         return $string;
+    }
+
+    public function sanitizeFile(File $file)
+    {
+        if (!$file->exists()) {
+            return;
+        }
+
+        $filename = str_replace('.'.$file->extension, '', $file->name);
+        $folder = str_replace($this->container->get('huh.utils.container')->getProjectDir().'/', '', $file->dirname);
+        $path = $folder.'/'.$this->sanitizeString($filename).'.'.$file->extension;
+        $file->renameTo($path);
     }
 }

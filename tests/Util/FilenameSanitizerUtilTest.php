@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2018 Heimrich & Hannot GmbH
+ * Copyright (c) 2019 Heimrich & Hannot GmbH
  *
  * @license LGPL-3.0-or-later
  */
@@ -12,7 +12,7 @@ use Contao\Config;
 use Contao\System;
 use Contao\TestCase\ContaoTestCase;
 use HeimrichHannot\FilenameSanitizerBundle\DataContainer\Settings;
-use HeimrichHannot\FilenameSanitizerBundle\EventListener\FilenameSanitizerUtil;
+use HeimrichHannot\FilenameSanitizerBundle\Util\FilenameSanitizerUtil;
 
 class FilenameSanitizerUtilTest extends ContaoTestCase
 {
@@ -94,10 +94,7 @@ class FilenameSanitizerUtilTest extends ContaoTestCase
         /*
          * trim
          */
-        Config::set('fs_validAlphabets', serialize($settingsService::DEFAULTS['fs_validAlphabets']));
-        Config::set('fs_replaceChar', '-');
-
-        $this->assertSame('test', $util->sanitizeString('  test   '));
+        $this->assertSame('-test-', $util->sanitizeString('  test   '));
 
         /*
          * final default alphabets and special chars containing all features at once
