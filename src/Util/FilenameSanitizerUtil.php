@@ -12,6 +12,7 @@ use Contao\Config;
 use Contao\CoreBundle\Framework\FrameworkAwareInterface;
 use Contao\CoreBundle\Framework\FrameworkAwareTrait;
 use Contao\File;
+use Contao\Folder;
 use Contao\StringUtil;
 use Contao\System;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -85,5 +86,13 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
         $folder = str_replace($this->container->get('huh.utils.container')->getProjectDir().'/', '', $file->dirname);
         $path = $folder.'/'.$this->sanitizeString($filename).'.'.$file->extension;
         $file->renameTo($path);
+    }
+
+    public function sanitizeFolder(Folder $folder)
+    {
+        $parentFolder = str_replace($this->container->get('huh.utils.container')->getProjectDir().'/', '', $folder->dirname);
+        $path = $parentFolder.'/'.$this->sanitizeString($folder->basename);
+
+        $folder->renameTo($path);
     }
 }
