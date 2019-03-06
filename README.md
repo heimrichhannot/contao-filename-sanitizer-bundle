@@ -15,3 +15,7 @@ This bundle offers functionality for sanitizing filenames, i.e. replacing unwant
 ## Installation
 
 Install via composer: `composer require heimrichhannot/contao-filename-sanitizer-bundle` and update your database.
+
+## Configuration
+
+You can configure the sanitizing rules in the global Contao settings under "file names".

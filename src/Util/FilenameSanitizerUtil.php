@@ -9,10 +9,12 @@
 namespace HeimrichHannot\FilenameSanitizerBundle\Util;
 
 use Contao\Config;
+use Contao\Controller;
 use Contao\CoreBundle\Framework\FrameworkAwareInterface;
 use Contao\CoreBundle\Framework\FrameworkAwareTrait;
 use Contao\File;
 use Contao\Folder;
+use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -82,16 +84,49 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
             return;
         }
 
+        $projectDir = $this->container->get('huh.utils.container')->getProjectDir();
+
         $filename = str_replace('.'.$file->extension, '', $file->name);
-        $folder = str_replace($this->container->get('huh.utils.container')->getProjectDir().'/', '', $file->dirname);
+        $folder = str_replace($projectDir.'/', '', $file->dirname);
         $path = $folder.'/'.$this->sanitizeString($filename).'.'.$file->extension;
+
+        // if the file's name already had been sane, we're finished here
+        if ($path === $file->path) {
+            return;
+        }
+
+        $fileExisted = file_exists($projectDir.'/'.$path);
+
         $file->renameTo($path);
+
+        if ($fileExisted) {
+            // remove the double model
+            $file->getModel()->delete();
+
+            // recalculate hash (file content might have changed)
+            \Dbafs::addResource($path);
+        }
     }
 
     public function sanitizeFolder(Folder $folder)
     {
-        $parentFolder = str_replace($this->container->get('huh.utils.container')->getProjectDir().'/', '', $folder->dirname);
-        $path = $parentFolder.'/'.$this->sanitizeString($folder->basename);
+        $projectDir = $this->container->get('huh.utils.container')->getProjectDir();
+
+        $parentFolder = str_replace($projectDir.'/', '', $folder->dirname);
+        $sanitizedName = $this->sanitizeString($folder->basename);
+        $path = $parentFolder.'/'.$sanitizedName;
+
+        // if the folder's name already had been sane, we're finished here
+        if ($path === $folder->path) {
+            return;
+        }
+
+        if (file_exists($projectDir.'/'.$path)) {
+            $folder->delete();
+            Message::addError(sprintf($GLOBALS['TL_LANG']['ERR']['fileExists'], $sanitizedName));
+
+            Controller::redirect($this->container->get('huh.utils.url')->removeQueryString(['act', 'mode', 'rt']));
+        }
 
         $folder->renameTo($path);
     }

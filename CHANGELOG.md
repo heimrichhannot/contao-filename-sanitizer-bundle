@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2019-03-06
+
+### Fixed
+- issue with uploading files or folders with already existing sanitized name
+- added termination condition for `filename/foldername === sanitized filename`
+
 ## [1.1.1] - 2019-01-18
 
 ### Fixed
