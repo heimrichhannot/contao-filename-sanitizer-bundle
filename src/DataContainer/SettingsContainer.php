@@ -15,7 +15,7 @@ use Contao\StringUtil;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class Settings implements FrameworkAwareInterface, ContainerAwareInterface
+class SettingsContainer implements FrameworkAwareInterface, ContainerAwareInterface
 {
     use FrameworkAwareTrait;
     use ContainerAwareTrait;
@@ -35,9 +35,31 @@ class Settings implements FrameworkAwareInterface, ContainerAwareInterface
         'fs_trim' => true,
         'fs_trimChars' => '-_.,;|',
         'fs_condenseSeparators' => true,
+        'fs_charReplacements' => [
+            [
+                'source' => 'ä',
+                'target' => 'ae',
+                'ignoreCase' => true,
+            ],
+            [
+                'source' => 'ö',
+                'target' => 'oe',
+                'ignoreCase' => true,
+            ],
+            [
+                'source' => 'ü',
+                'target' => 'ue',
+                'ignoreCase' => true,
+            ],
+            [
+                'source' => 'ß',
+                'target' => 'ss',
+                'ignoreCase' => true,
+            ],
+        ],
     ];
 
-    const DOUBLE_SEPERATORS = ['--', '__', '––'];
+    const DOUBLE_SEPARATORS = ['--', '__', '––'];
 
     public function modifyDca()
     {

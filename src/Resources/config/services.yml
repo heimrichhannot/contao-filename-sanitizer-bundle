@@ -7,12 +7,12 @@ services:
       calls:
         - ["setContainer", ["@service_container"]]
 
-  huh.filename_sanitizer.data_container.files:
-    class: HeimrichHannot\FilenameSanitizerBundle\DataContainer\Files
+  huh.filename_sanitizer.data_container.files_container:
+    class: HeimrichHannot\FilenameSanitizerBundle\DataContainer\FilesContainer
     public: true
     autowire: true
-  huh.filename_sanitizer.data_container.settings:
-    class: HeimrichHannot\FilenameSanitizerBundle\DataContainer\Settings
+  huh.filename_sanitizer.data_container.settings_container:
+    class: HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer
     public: true
     autowire: true
   huh.filename_sanitizer.event_listener.hook_listener:

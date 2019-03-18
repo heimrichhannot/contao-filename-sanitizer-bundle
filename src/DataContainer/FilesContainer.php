@@ -15,7 +15,7 @@ use Contao\Folder;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class Files implements FrameworkAwareInterface, ContainerAwareInterface
+class FilesContainer implements FrameworkAwareInterface, ContainerAwareInterface
 {
     use FrameworkAwareTrait;
     use ContainerAwareTrait;
