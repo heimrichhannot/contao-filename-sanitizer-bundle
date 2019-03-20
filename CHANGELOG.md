@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2019-03-20
+
+### Fixed
+- js issues
+- character replacement can now be empty
+
 ## [1.3.0] - 2019-03-19
 
 ### Added
