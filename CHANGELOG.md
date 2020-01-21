@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 2020-01-21
+
+- backend file save issue
+
 ## [1.3.1] - 2019-03-20
 
 ### Fixed

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2019 Heimrich & Hannot GmbH
+ * Copyright (c) 2020 Heimrich & Hannot GmbH
  *
  * @license LGPL-3.0-or-later
  */
@@ -31,7 +31,7 @@ class FilesContainer implements FrameworkAwareInterface, ContainerAwareInterface
 
             $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeFolder($folder);
         } else {
-            if (null === ($file = new File($dc->id))) {
+            if (null === ($file = new File($dc->activeRecord->path))) {
                 return;
             }
 
