@@ -27,4 +27,27 @@ class HookListener implements FrameworkAwareInterface, ContainerAwareInterface
             $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeFile($file);
         }
     }
+
+    public function sanitizeFilenamesPreUpload($folder)
+    {
+        if (!\is_array($_FILES['files']['name'])) {
+            $pathInfo = pathinfo($_FILES['files']['name']);
+
+            $extension = isset($pathInfo['extension']) && $pathInfo['extension'] ? '.'.$pathInfo['extension'] : '';
+
+            $_FILES['files']['name'] = $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeString($pathInfo['filename']).$extension;
+        } else {
+            for ($i = 0; $i < \count($_FILES['files']['name']); ++$i) {
+                if ('' == $_FILES['files']['name'][$i]) {
+                    continue;
+                }
+
+                $pathInfo = pathinfo($_FILES['files']['name'][$i]);
+
+                $extension = isset($pathInfo['extension']) && $pathInfo['extension'] ? '.'.$pathInfo['extension'] : '';
+
+                $_FILES['files']['name'][$i] = $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeString($_FILES['files']['name'][$i]).$extension;
+            }
+        }
+    }
 }

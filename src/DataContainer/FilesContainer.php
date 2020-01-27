@@ -38,4 +38,9 @@ class FilesContainer implements FrameworkAwareInterface, ContainerAwareInterface
             $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeFile($file);
         }
     }
+
+    public function sanitizeFilenameOnSave($value, $dc)
+    {
+        return $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeString($value);
+    }
 }

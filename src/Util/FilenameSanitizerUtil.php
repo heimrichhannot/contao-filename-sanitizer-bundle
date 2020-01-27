@@ -119,9 +119,13 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
         $projectDir = $this->container->get('huh.utils.container')->getProjectDir();
 
         $event = $this->dispatcher->dispatch(BeforeFilenameSanitizationEvent::NAME, new BeforeFilenameSanitizationEvent($file));
+
+        /** @var File $file */
         $file = $event->getFile();
 
-        $filename = str_replace('.'.$file->extension, '', $file->name);
+        $pathInfo = pathinfo($file->path);
+
+        $filename = $pathInfo['filename'];
         $folder = str_replace($projectDir.'/', '', $file->dirname);
         $path = $folder.'/'.$this->sanitizeString($filename).'.'.$file->extension;
 
@@ -150,6 +154,8 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
         $projectDir = $this->container->get('huh.utils.container')->getProjectDir();
 
         $event = $this->dispatcher->dispatch(BeforeFolderSanitizationEvent::NAME, new BeforeFolderSanitizationEvent($folder));
+
+        /** @var Folder $folder */
         $folder = $event->getFolder();
 
         $parentFolder = str_replace($projectDir.'/', '', $folder->dirname);
