@@ -1,25 +1,6 @@
 services:
-  _instanceof:
-    Contao\CoreBundle\Framework\FrameworkAwareInterface:
-      calls:
-        - ["setFramework", ["@contao.framework"]]
-    Symfony\Component\DependencyInjection\ContainerAwareInterface:
-      calls:
-        - ["setContainer", ["@service_container"]]
+  _defaults:
+    public: true
+    autowire: true
 
-  huh.filename_sanitizer.data_container.files_container:
-    class: HeimrichHannot\FilenameSanitizerBundle\DataContainer\FilesContainer
-    public: true
-    autowire: true
-  huh.filename_sanitizer.data_container.settings_container:
-    class: HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer
-    public: true
-    autowire: true
-  huh.filename_sanitizer.event_listener.hook_listener:
-    class: HeimrichHannot\FilenameSanitizerBundle\EventListener\HookListener
-    public: true
-    autowire: true
-  huh.filename_sanitizer.util.filename_sanitizer:
-    class: HeimrichHannot\FilenameSanitizerBundle\Util\FilenameSanitizerUtil
-    public: true
-    autowire: true
+  HeimrichHannot\FilenameSanitizerBundle\Util\FilenameSanitizerUtil: ~

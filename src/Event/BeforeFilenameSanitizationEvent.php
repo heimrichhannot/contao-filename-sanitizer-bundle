@@ -20,25 +20,16 @@ class BeforeFilenameSanitizationEvent extends Event
      */
     protected $file;
 
-    /**
-     * @param File $file
-     */
     public function __construct(File $file)
     {
         $this->file = $file;
     }
 
-    /**
-     * @return File
-     */
     public function getFile(): File
     {
         return $this->file;
     }
 
-    /**
-     * @param File $file
-     */
     public function setFile(File $file): void
     {
         $this->file = $file;

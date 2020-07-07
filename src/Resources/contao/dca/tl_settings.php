@@ -1,12 +1,12 @@
 <?php
 
 $dca             = &$GLOBALS['TL_DCA']['tl_settings'];
-$settingsService = System::getContainer()->get('huh.filename_sanitizer.data_container.settings_container');
+$settingsService = System::getContainer()->get(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class);
 
 /**
  * Callbacks
  */
-$dca['config']['onload_callback']['filenameSanitizer'] = ['huh.filename_sanitizer.data_container.settings_container', 'modifyDca'];
+$dca['config']['onload_callback']['filenameSanitizer'] = [\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class, 'modifyDca'];
 
 /**
  * Palettes

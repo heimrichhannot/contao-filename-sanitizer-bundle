@@ -8,17 +8,21 @@
 
 namespace HeimrichHannot\FilenameSanitizerBundle\DataContainer;
 
-use Contao\CoreBundle\Framework\FrameworkAwareInterface;
-use Contao\CoreBundle\Framework\FrameworkAwareTrait;
 use Contao\File;
 use Contao\Folder;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use HeimrichHannot\FilenameSanitizerBundle\Util\FilenameSanitizerUtil;
 
-class FilesContainer implements FrameworkAwareInterface, ContainerAwareInterface
+class FilesContainer
 {
-    use FrameworkAwareTrait;
-    use ContainerAwareTrait;
+    /**
+     * @var FilenameSanitizerUtil
+     */
+    private $util;
+
+    public function __construct(FilenameSanitizerUtil $util)
+    {
+        $this->util = $util;
+    }
 
     public function sanitizeFilename($dc)
     {
@@ -29,18 +33,18 @@ class FilesContainer implements FrameworkAwareInterface, ContainerAwareInterface
                 return;
             }
 
-            $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeFolder($folder);
+            $this->util->sanitizeFolder($folder);
         } else {
             if (null === ($file = new File($dc->activeRecord->path))) {
                 return;
             }
 
-            $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeFile($file);
+            $this->util->sanitizeFile($file);
         }
     }
 
     public function sanitizeFilenameOnSave($value, $dc)
     {
-        return $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeString($value);
+        return $this->util->sanitizeString($value);
     }
 }

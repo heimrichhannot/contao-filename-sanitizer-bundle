@@ -10,46 +10,55 @@ namespace HeimrichHannot\FilenameSanitizerBundle\Util;
 
 use Contao\Config;
 use Contao\Controller;
-use Contao\CoreBundle\Framework\FrameworkAwareInterface;
-use Contao\CoreBundle\Framework\FrameworkAwareTrait;
 use Contao\File;
 use Contao\Folder;
 use Contao\Message;
 use Contao\StringUtil;
-use Contao\System;
+use HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer;
 use HeimrichHannot\FilenameSanitizerBundle\Event\AfterFilenameSanitizationEvent;
 use HeimrichHannot\FilenameSanitizerBundle\Event\AfterFolderSanitizationEvent;
 use HeimrichHannot\FilenameSanitizerBundle\Event\AfterStringSanitizationEvent;
 use HeimrichHannot\FilenameSanitizerBundle\Event\BeforeFilenameSanitizationEvent;
 use HeimrichHannot\FilenameSanitizerBundle\Event\BeforeFolderSanitizationEvent;
 use HeimrichHannot\FilenameSanitizerBundle\Event\BeforeStringSanitizationEvent;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use HeimrichHannot\UtilsBundle\Container\ContainerUtil;
+use HeimrichHannot\UtilsBundle\Url\UrlUtil;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareInterface
+class FilenameSanitizerUtil
 {
-    use FrameworkAwareTrait;
-    use ContainerAwareTrait;
-
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
-    protected $dispatcher;
+    protected $eventDispatcher;
+    /**
+     * @var SettingsContainer
+     */
+    private $settingsContainer;
+    /**
+     * @var ContainerUtil
+     */
+    private $containerUtil;
+    /**
+     * @var UrlUtil
+     */
+    private $urlUtil;
 
-    public function __construct()
+    public function __construct(EventDispatcherInterface $eventDispatcher, SettingsContainer $settingsContainer, ContainerUtil $containerUtil, UrlUtil $urlUtil)
     {
-        $this->dispatcher = System::getContainer()->get('event_dispatcher');
+        $this->eventDispatcher = $eventDispatcher;
+        $this->settingsContainer = $settingsContainer;
+        $this->containerUtil = $containerUtil;
+        $this->urlUtil = $urlUtil;
     }
 
     public function sanitizeString(string $string)
     {
-        $event = $this->dispatcher->dispatch(BeforeStringSanitizationEvent::NAME, new BeforeStringSanitizationEvent($string));
+        $event = $this->eventDispatcher->dispatch(BeforeStringSanitizationEvent::NAME, new BeforeStringSanitizationEvent($string));
         $string = $event->getString();
 
         $regExp = '';
         $alphabets = StringUtil::deserialize(Config::get('fs_validAlphabets'), true);
-        $settingsService = System::getContainer()->get('huh.filename_sanitizer.data_container.settings_container');
 
         if (Config::get('fs_charReplacements')) {
             foreach (StringUtil::deserialize(Config::get('fs_charReplacements'), true) as $replacement) {
@@ -60,25 +69,25 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
             }
         }
 
-        if (\in_array($settingsService::SMALL_LETTERS, $alphabets) && \in_array($settingsService::CAPITAL_LETTERS, $alphabets)) {
+        if (\in_array($this->settingsContainer::SMALL_LETTERS, $alphabets) && \in_array($this->settingsContainer::CAPITAL_LETTERS, $alphabets)) {
             $regExp .= 'a-zA-Z';
         }
 
-        if (!\in_array($settingsService::SMALL_LETTERS, $alphabets) && \in_array($settingsService::CAPITAL_LETTERS, $alphabets)) {
+        if (!\in_array($this->settingsContainer::SMALL_LETTERS, $alphabets) && \in_array($this->settingsContainer::CAPITAL_LETTERS, $alphabets)) {
             $string = strtoupper($string);
             $regExp .= 'A-Z';
         }
 
-        if (\in_array($settingsService::SMALL_LETTERS, $alphabets) && !\in_array($settingsService::CAPITAL_LETTERS, $alphabets)) {
+        if (\in_array($this->settingsContainer::SMALL_LETTERS, $alphabets) && !\in_array($this->settingsContainer::CAPITAL_LETTERS, $alphabets)) {
             $string = strtolower($string);
             $regExp .= 'a-z';
         }
 
-        if (\in_array($settingsService::NUMBERS, $alphabets)) {
+        if (\in_array($this->settingsContainer::NUMBERS, $alphabets)) {
             $regExp .= '0-9';
         }
 
-        if (\in_array($settingsService::SPECIAL_CHARS, $alphabets)) {
+        if (\in_array($this->settingsContainer::SPECIAL_CHARS, $alphabets)) {
             $regExp .= preg_quote(Config::get('fs_validSpecialChars'));
         }
 
@@ -89,7 +98,7 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
         $string = preg_replace('/[^'.$regExp.']/', Config::get('fs_replaceChar'), $string);
 
         if (Config::get('fs_condenseSeparators')) {
-            foreach ($settingsService::DOUBLE_SEPARATORS as $doubleSeperator) {
+            foreach ($this->settingsContainer::DOUBLE_SEPARATORS as $doubleSeperator) {
                 while (false !== strpos($string, $doubleSeperator)) {
                     $string = str_replace($doubleSeperator, substr($doubleSeperator, 0, 1), $string);
                 }
@@ -104,7 +113,7 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
             $string = trim($string, Config::get('fs_trimChars'));
         }
 
-        $event = $this->dispatcher->dispatch(AfterStringSanitizationEvent::NAME, new AfterStringSanitizationEvent($string));
+        $event = $this->eventDispatcher->dispatch(AfterStringSanitizationEvent::NAME, new AfterStringSanitizationEvent($string));
         $string = $event->getString();
 
         return $string;
@@ -116,9 +125,9 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
             return;
         }
 
-        $projectDir = $this->container->get('huh.utils.container')->getProjectDir();
+        $projectDir = $this->containerUtil->getProjectDir();
 
-        $event = $this->dispatcher->dispatch(BeforeFilenameSanitizationEvent::NAME, new BeforeFilenameSanitizationEvent($file));
+        $event = $this->eventDispatcher->dispatch(BeforeFilenameSanitizationEvent::NAME, new BeforeFilenameSanitizationEvent($file));
 
         /** @var File $file */
         $file = $event->getFile();
@@ -146,14 +155,14 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
             \Dbafs::addResource($path);
         }
 
-        $this->dispatcher->dispatch(AfterFilenameSanitizationEvent::NAME, new AfterFilenameSanitizationEvent($path));
+        $this->eventDispatcher->dispatch(AfterFilenameSanitizationEvent::NAME, new AfterFilenameSanitizationEvent($path));
     }
 
     public function sanitizeFolder(Folder $folder)
     {
-        $projectDir = $this->container->get('huh.utils.container')->getProjectDir();
+        $projectDir = $this->containerUtil->getProjectDir();
 
-        $event = $this->dispatcher->dispatch(BeforeFolderSanitizationEvent::NAME, new BeforeFolderSanitizationEvent($folder));
+        $event = $this->eventDispatcher->dispatch(BeforeFolderSanitizationEvent::NAME, new BeforeFolderSanitizationEvent($folder));
 
         /** @var Folder $folder */
         $folder = $event->getFolder();
@@ -171,11 +180,11 @@ class FilenameSanitizerUtil implements FrameworkAwareInterface, ContainerAwareIn
             $folder->delete();
             Message::addError(sprintf($GLOBALS['TL_LANG']['ERR']['fileExists'], $sanitizedName));
 
-            Controller::redirect($this->container->get('huh.utils.url')->removeQueryString(['act', 'mode', 'rt']));
+            Controller::redirect($this->urlUtil->removeQueryString(['act', 'mode', 'rt']));
         }
 
         $folder->renameTo($path);
 
-        $this->dispatcher->dispatch(AfterFolderSanitizationEvent::NAME, new AfterFolderSanitizationEvent($path));
+        $this->eventDispatcher->dispatch(AfterFolderSanitizationEvent::NAME, new AfterFolderSanitizationEvent($path));
     }
 }

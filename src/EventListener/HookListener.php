@@ -8,23 +8,27 @@
 
 namespace HeimrichHannot\FilenameSanitizerBundle\EventListener;
 
-use Contao\CoreBundle\Framework\FrameworkAwareInterface;
-use Contao\CoreBundle\Framework\FrameworkAwareTrait;
 use Contao\File;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use HeimrichHannot\FilenameSanitizerBundle\Util\FilenameSanitizerUtil;
 
-class HookListener implements FrameworkAwareInterface, ContainerAwareInterface
+class HookListener
 {
-    use FrameworkAwareTrait;
-    use ContainerAwareTrait;
+    /**
+     * @var FilenameSanitizerUtil
+     */
+    private $util;
+
+    public function __construct(FilenameSanitizerUtil $util)
+    {
+        $this->util = $util;
+    }
 
     public function sanitizeFilenames(&$files)
     {
         foreach ($files as $path) {
             $file = new File($path);
 
-            $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeFile($file);
+            $this->util->sanitizeFile($file);
         }
     }
 
@@ -35,7 +39,7 @@ class HookListener implements FrameworkAwareInterface, ContainerAwareInterface
 
             $extension = isset($pathInfo['extension']) && $pathInfo['extension'] ? '.'.$pathInfo['extension'] : '';
 
-            $_FILES['files']['name'] = $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeString($pathInfo['filename']).$extension;
+            $_FILES['files']['name'] = $this->util->sanitizeString($pathInfo['filename']).$extension;
         } else {
             for ($i = 0; $i < \count($_FILES['files']['name']); ++$i) {
                 if ('' == $_FILES['files']['name'][$i]) {
@@ -46,7 +50,7 @@ class HookListener implements FrameworkAwareInterface, ContainerAwareInterface
 
                 $extension = isset($pathInfo['extension']) && $pathInfo['extension'] ? '.'.$pathInfo['extension'] : '';
 
-                $_FILES['files']['name'][$i] = $this->container->get('huh.filename_sanitizer.util.filename_sanitizer')->sanitizeString($_FILES['files']['name'][$i]).$extension;
+                $_FILES['files']['name'][$i] = $this->util->sanitizeString($_FILES['files']['name'][$i]).$extension;
             }
         }
     }

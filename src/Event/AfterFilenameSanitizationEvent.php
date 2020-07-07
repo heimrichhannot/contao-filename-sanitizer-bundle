@@ -19,25 +19,16 @@ class AfterFilenameSanitizationEvent extends Event
      */
     protected $filename;
 
-    /**
-     * @param string $filename
-     */
     public function __construct(string $filename)
     {
         $this->filename = $filename;
     }
 
-    /**
-     * @return string
-     */
     public function getFilename(): string
     {
         return $this->filename;
     }
 
-    /**
-     * @param string $filename
-     */
     public function setFilename(string $filename): void
     {
         $this->filename = $filename;

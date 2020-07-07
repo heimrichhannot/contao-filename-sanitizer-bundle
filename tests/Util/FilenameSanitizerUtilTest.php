@@ -24,7 +24,7 @@ class FilenameSanitizerUtilTest extends ContaoTestCase
         $settingsService->setFramework($this->mockContaoFramework());
 
         $container = $this->mockContainer();
-        $container->set('huh.filename_sanitizer.data_container.settings_container', $settingsService);
+        $container->set(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class, $settingsService);
         System::setContainer($container);
     }
 
@@ -44,7 +44,7 @@ class FilenameSanitizerUtilTest extends ContaoTestCase
         $util->setFramework($framework);
 
         /** @var Settings $settingsService */
-        $settingsService = System::getContainer()->get('huh.filename_sanitizer.data_container.settings_container');
+        $settingsService = System::getContainer()->get(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class);
 
         /*
          * Alphabets

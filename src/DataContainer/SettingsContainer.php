@@ -9,17 +9,10 @@
 namespace HeimrichHannot\FilenameSanitizerBundle\DataContainer;
 
 use Contao\Config;
-use Contao\CoreBundle\Framework\FrameworkAwareInterface;
-use Contao\CoreBundle\Framework\FrameworkAwareTrait;
 use Contao\StringUtil;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class SettingsContainer implements FrameworkAwareInterface, ContainerAwareInterface
+class SettingsContainer
 {
-    use FrameworkAwareTrait;
-    use ContainerAwareTrait;
-
     const CAPITAL_LETTERS = 'capitalLetters';
     const SMALL_LETTERS = 'smallLetters';
     const NUMBERS = 'numbers';

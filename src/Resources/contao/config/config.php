@@ -3,10 +3,10 @@
 /**
  * Hooks
  */
-$GLOBALS['TL_HOOKS']['postUpload']['sanitizeFilename'] = ['huh.filename_sanitizer.event_listener.hook_listener', 'sanitizeFilenames'];
+$GLOBALS['TL_HOOKS']['postUpload']['sanitizeFilename'] = [\HeimrichHannot\FilenameSanitizerBundle\EventListener\HookListener::class, 'sanitizeFilenames'];
 
 // support for drafts bundle
-$GLOBALS['TL_HOOKS']['preUpload']['sanitizeFilename']  = ['huh.filename_sanitizer.event_listener.hook_listener', 'sanitizeFilenamesPreUpload'];
+$GLOBALS['TL_HOOKS']['preUpload']['sanitizeFilename']  = [\HeimrichHannot\FilenameSanitizerBundle\EventListener\HookListener::class, 'sanitizeFilenamesPreUpload'];
 
-$settingsService = System::getContainer()->get('huh.filename_sanitizer.data_container.settings_container');
+$settingsService = System::getContainer()->get(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class);
 $settingsService->setDefaults();

@@ -31,7 +31,7 @@ $lang['filename_sanitizer_legend'] = 'Dateinamen';
 /**
  * Reference
  */
-$settingsService = System::getContainer()->get('huh.filename_sanitizer.data_container.settings_container');
+$settingsService = System::getContainer()->get(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class);
 
 $lang['reference']['filenameSanitizerBundle'] = [
     'validAlphabets' => [

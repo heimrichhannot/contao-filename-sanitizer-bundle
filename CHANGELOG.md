@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2020-07-07
+
+- added `SanitizeCommand` for fixing filenames of files already in the system (use it with caution and always do a backup!)
+- class/service refactoring for contao 4.4 and 4.9
+
 ## [2.0.1] - 2020-01-27
 
 - fixed changelog

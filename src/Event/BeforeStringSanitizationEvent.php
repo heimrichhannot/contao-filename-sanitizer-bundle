@@ -19,25 +19,16 @@ class BeforeStringSanitizationEvent extends Event
      */
     protected $string;
 
-    /**
-     * @param string $string
-     */
     public function __construct(string $string)
     {
         $this->string = $string;
     }
 
-    /**
-     * @return string
-     */
     public function getString(): string
     {
         return $this->string;
     }
 
-    /**
-     * @param string $string
-     */
     public function setString(string $string): void
     {
         $this->string = $string;

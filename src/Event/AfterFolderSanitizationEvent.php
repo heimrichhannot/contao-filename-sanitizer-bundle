@@ -19,25 +19,16 @@ class AfterFolderSanitizationEvent extends Event
      */
     protected $folder;
 
-    /**
-     * @param string $folder
-     */
     public function __construct(string $folder)
     {
         $this->folder = $folder;
     }
 
-    /**
-     * @return string
-     */
     public function getFolder(): string
     {
         return $this->folder;
     }
 
-    /**
-     * @param string $folder
-     */
     public function setFolder(string $folder): void
     {
         $this->folder = $folder;
