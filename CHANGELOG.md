@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2020-07-08
+
+- added handling for rare problematic situations in `SanitizeCommand` (e.g. sanitizing a file when a file of the sanitized name already exists) in order to prevent data loss
+- improved error logging in `SanitizeCommand`
+
 ## [2.1.0] - 2020-07-07
 
 - added `SanitizeCommand` for fixing filenames of files already in the system (use it with caution and always do a backup!)

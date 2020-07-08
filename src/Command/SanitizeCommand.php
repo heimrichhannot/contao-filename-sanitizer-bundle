@@ -175,7 +175,8 @@ class SanitizeCommand extends AbstractLockedCommand
         // retrieve the files/folders
         $records = $this->retrieveFiles($this->ids, $this->paths);
 
-        $records = $this->cleanupFiles($records);
+        // filter out files already sane or producing some kind of issue
+        [$hints, $records] = $this->cleanupFiles($records);
 
         $tableRows = [];
 
@@ -191,6 +192,18 @@ class SanitizeCommand extends AbstractLockedCommand
             $tableRows
         );
 
+        if (!empty($hints)) {
+            $this->io->warning('The following files/folders will not be processed:');
+
+            $this->io->writeln($hints);
+        }
+
+        if (empty($records)) {
+            $this->io->success('No file or folder names need to be sanitized.');
+
+            return 0;
+        }
+
         $answer = $this->io->confirm(sprintf('The %s files/folders above will be renamed. Do you want to proceed?', \count($records)), false);
 
         if (!$answer) {
@@ -205,6 +218,17 @@ class SanitizeCommand extends AbstractLockedCommand
             return 0;
         }
 
+        $this->sanitize($records);
+
+        $this->outputHtaccessRewriteRules($records);
+
+        $this->io->success('Sanitizing finished.');
+
+        return 0;
+    }
+
+    protected function sanitize($records)
+    {
         foreach ($records as $path => $record) {
             $data = $record['data'];
 
@@ -227,22 +251,27 @@ class SanitizeCommand extends AbstractLockedCommand
             $this->io->write('Success');
             $this->io->newLine();
         }
+    }
 
-        // print out the htaccess redirect rules
-        $this->io->note('htaccess rewrite rules');
-
-        $this->io->writeln('RewriteEngine on');
+    protected function outputHtaccessRewriteRules($records)
+    {
+        $basePrinted = false;
 
         foreach ($records as $path => $record) {
             $newFile = $this->databaseUtil->findResultByPk('tl_files', $record['data']['id']);
 
-            if (null !== $newFile /*&& $newFile->path !== $path*/) {
+            if (null !== $newFile && ($this->dryRun || $newFile->path !== $path) && $newFile->path) {
+                if (!$basePrinted) {
+                    $basePrinted = true;
+
+                    $this->io->note('htaccess rewrite rules');
+                    $this->io->writeln('RewriteEngine on');
+                }
+
                 $this->io->writeln('RewriteCond %{REQUEST_URI} "^/'.preg_quote($path).'$"');
                 $this->io->writeln(sprintf('RewriteRule .* "%s/%s" [R=301,L]', $this->domain, $newFile->path));
             }
         }
-
-        return 0;
     }
 
     protected function retrieveFiles(array $ids, array $paths)
@@ -308,25 +337,47 @@ class SanitizeCommand extends AbstractLockedCommand
     protected function cleanupFiles($records)
     {
         $result = [];
+        $hints = [];
+        $targetPaths = [];
 
         foreach ($records as $path => $record) {
-            // remove files already sane
             $pathInfo = pathinfo($record['path']);
 
             $filename = $pathInfo['filename'];
 
             $sanitizedFilename = $this->util->sanitizeString($filename);
 
-            if ($sanitizedFilename === $filename) {
-                continue;
-            }
+            $sanitized = 'folder' === $record['type'] ? $sanitizedFilename : $sanitizedFilename.($pathInfo['extension'] ? '.'.strtolower($pathInfo['extension']) : '');
 
             // remove files not existing
             if (!file_exists($this->containerUtil->getProjectDir().'/'.$path)) {
+                $hints[] = 'Skipping "'.$path.'" since the file/folder does not exist in the file system.';
+
                 continue;
             }
 
-            $sanitized = 'folder' === $record['type'] ? $sanitizedFilename : $sanitizedFilename.($pathInfo['extension'] ? '.'.strtolower($pathInfo['extension']) : '');
+            // remove files already sane
+            if ($sanitizedFilename === $filename) {
+                $hints[] = 'Skipping "'.$path.'" since the filename is already sane.';
+
+                continue;
+            }
+
+            // remove files where the sanitized version already exists in order to prevent data loss
+            if (file_exists($this->containerUtil->getProjectDir().'/'.$pathInfo['dirname'].'/'.$sanitized)) {
+                $hints[] = 'Skipping "'.$path.'" since a file/folder with the sanitized filename "'.$sanitized.'" already exists in the file system.';
+
+                continue;
+            }
+
+            // remove doubled file/folder names AFTER sanitizing
+            if (!\in_array($pathInfo['dirname'].'/'.$sanitized, $targetPaths)) {
+                $targetPaths[] = $pathInfo['dirname'].'/'.$sanitized;
+            } else {
+                $hints[] = 'Skipping "'.$path.'" since a file/folder whose name would become the same like this one after sanitizing.';
+
+                continue;
+            }
 
             $result[$path] = [
                 'data' => $record,
@@ -334,6 +385,6 @@ class SanitizeCommand extends AbstractLockedCommand
             ];
         }
 
-        return $result;
+        return [$hints, $result];
     }
 }

@@ -14,6 +14,8 @@ This bundle offers functionality for sanitizing filenames, i.e. replacing unwant
 - define a set of 1:1 character replacements (useful for German umlauts, i.e. ä => ae)
 - use the `SanitizeCommand` in order to sanitize the filenames of files/folders already in the system and automatically create htaccess rewrite rules in order to keep deep links working
 
+## Default sanitizing rules after installation of this bundle
+
 ![configuration](doc/images/config.png)
 
 Configuration in Contao's global settings
@@ -73,12 +75,12 @@ Features:
 
 Usage:
 
-```bash
+```
 vendor/bin/contao-console huh_filename_sanitizer:sanitize [options]
 ```
 
 Options:
-```bash
+```
     --dry-run[=DRY-RUN]      See what the command would do [default: false]
     --ids[=IDS]              Pass in one or a comma separated list of IDs (tl_files.id); example: 1,2,3
     --paths[=PATHS]          Pass in one or a *pipe* separated list of paths (relative to the Contao root directory); example: files|files/some-folder|files/Hello, John
