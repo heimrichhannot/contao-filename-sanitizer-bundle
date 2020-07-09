@@ -6,13 +6,17 @@
  * @license LGPL-3.0-or-later
  */
 
-namespace HeimrichHannot\UtilsBundle\Tests\Util;
+namespace HeimrichHannot\FilenameSanitizerBundle\Tests\Util;
 
 use Contao\Config;
 use Contao\System;
 use Contao\TestCase\ContaoTestCase;
-use HeimrichHannot\FilenameSanitizerBundle\DataContainer\Settings;
+use HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer;
 use HeimrichHannot\FilenameSanitizerBundle\Util\FilenameSanitizerUtil;
+use HeimrichHannot\UtilsBundle\Container\ContainerUtil;
+use HeimrichHannot\UtilsBundle\Url\UrlUtil;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class FilenameSanitizerUtilTest extends ContaoTestCase
 {
@@ -20,11 +24,16 @@ class FilenameSanitizerUtilTest extends ContaoTestCase
     {
         parent::setUp();
 
-        $settingsService = new Settings();
-        $settingsService->setFramework($this->mockContaoFramework());
-
         $container = $this->mockContainer();
-        $container->set(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class, $settingsService);
+
+        $settingsContainer = new SettingsContainer();
+        $containerUtil = $this->createMock(ContainerUtil::class);
+        $urlUtil = $this->createMock(UrlUtil::class);
+
+        $container->set(EventDispatcherInterface::class, new EventDispatcher());
+        $container->set(SettingsContainer::class, $settingsContainer);
+        $container->set(ContainerUtil::class, $containerUtil);
+        $container->set(UrlUtil::class, $urlUtil);
         System::setContainer($container);
     }
 
@@ -33,37 +42,44 @@ class FilenameSanitizerUtilTest extends ContaoTestCase
      */
     public function testCanBeInstantiated()
     {
-        $instance = new FilenameSanitizerUtil();
+        $instance = new FilenameSanitizerUtil(
+            System::getContainer()->get(EventDispatcherInterface::class),
+            System::getContainer()->get(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class),
+            System::getContainer()->get(\HeimrichHannot\UtilsBundle\Container\ContainerUtil::class),
+            System::getContainer()->get(\HeimrichHannot\UtilsBundle\Url\UrlUtil::class)
+        );
         $this->assertInstanceOf(FilenameSanitizerUtil::class, $instance);
     }
 
     public function testSanitizeString()
     {
-        $framework = $this->mockContaoFramework();
-        $util = new FilenameSanitizerUtil();
-        $util->setFramework($framework);
+        $util = new FilenameSanitizerUtil(
+            System::getContainer()->get(EventDispatcherInterface::class),
+            System::getContainer()->get(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class),
+            System::getContainer()->get(\HeimrichHannot\UtilsBundle\Container\ContainerUtil::class),
+            System::getContainer()->get(\HeimrichHannot\UtilsBundle\Url\UrlUtil::class)
+        );
 
-        /** @var Settings $settingsService */
-        $settingsService = System::getContainer()->get(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class);
+        /** @var SettingsContainer $settingsContainer */
+        $settingsContainer = System::getContainer()->get(\HeimrichHannot\FilenameSanitizerBundle\DataContainer\SettingsContainer::class);
 
         /*
          * Alphabets
          */
-
         // capital letters
-        Config::set('fs_validAlphabets', serialize([$settingsService::CAPITAL_LETTERS]));
+        Config::set('fs_validAlphabets', serialize([$settingsContainer::CAPITAL_LETTERS]));
         $this->assertSame('TESTTESTTEST', $util->sanitizeString('Test test-1234_tesT'));
 
         // small letters
-        Config::set('fs_validAlphabets', serialize([$settingsService::SMALL_LETTERS]));
+        Config::set('fs_validAlphabets', serialize([$settingsContainer::SMALL_LETTERS]));
         $this->assertSame('testtesttest', $util->sanitizeString('Test test-1234_tesT'));
 
         // numbers
-        Config::set('fs_validAlphabets', serialize([$settingsService::NUMBERS]));
+        Config::set('fs_validAlphabets', serialize([$settingsContainer::NUMBERS]));
         $this->assertSame('1234', $util->sanitizeString('Test test-1234_tesT'));
 
         // special chars
-        Config::set('fs_validAlphabets', serialize([$settingsService::SPECIAL_CHARS]));
+        Config::set('fs_validAlphabets', serialize([$settingsContainer::SPECIAL_CHARS]));
         Config::set('fs_validSpecialChars', '-_');
         $this->assertSame('-_', $util->sanitizeString('Test test-1234_tesT'));
 
@@ -73,23 +89,21 @@ class FilenameSanitizerUtilTest extends ContaoTestCase
         /*
          * replace character
          */
-        Config::set('fs_validAlphabets', serialize($settingsService::DEFAULTS['fs_validAlphabets']));
+        Config::set('fs_validAlphabets', serialize($settingsContainer::DEFAULTS['fs_validAlphabets']));
         Config::set('fs_replaceChar', '@');
-        Config::set('fs_validSpecialChars', '-_');
-        $this->assertSame('test@test-1234_test', $util->sanitizeString('Test test-1234_tesT'));
+        $this->assertSame('test@test@1234@test', $util->sanitizeString('Test test-1234_tesT'));
 
         Config::set('fs_replaceChar', '-');
-        $this->assertSame('test--test--1234_test', $util->sanitizeString('Test  test-@1234_tesT'));
+        $this->assertSame('test--test--1234-test', $util->sanitizeString('Test  test-@1234_tesT'));
 
         /*
          * condensed separators
          */
-        Config::set('fs_validAlphabets', serialize($settingsService::DEFAULTS['fs_validAlphabets']));
+        Config::set('fs_validAlphabets', serialize($settingsContainer::DEFAULTS['fs_validAlphabets']));
         Config::set('fs_replaceChar', '-');
-        Config::set('fs_validSpecialChars', '-_');
         Config::set('fs_condenseSeparators', true);
 
-        $this->assertSame('test-test-1234_test', $util->sanitizeString('Test  test-@1234_tesT'));
+        $this->assertSame('test-test-1234-test', $util->sanitizeString('Test  test-@1234_tesT'));
 
         /*
          * trim
@@ -99,7 +113,7 @@ class FilenameSanitizerUtilTest extends ContaoTestCase
         /*
          * final default alphabets and special chars containing all features at once
          */
-        foreach ($settingsService::DEFAULTS as $field => $value) {
+        foreach ($settingsContainer::DEFAULTS as $field => $value) {
             Config::set($field, \is_array($value) ? serialize($value) : $value);
         }
 

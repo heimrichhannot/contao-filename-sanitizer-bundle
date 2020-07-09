@@ -55,15 +55,19 @@ class FilenameSanitizerUtil
     public function sanitizeString(string $string)
     {
         $event = $this->eventDispatcher->dispatch(BeforeStringSanitizationEvent::NAME, new BeforeStringSanitizationEvent($string));
-        $string = $event->getString();
+
+        // needed for macOS...
+        $string = normalizer_normalize($event->getString());
 
         $regExp = '';
         $alphabets = StringUtil::deserialize(Config::get('fs_validAlphabets'), true);
 
         if (Config::get('fs_charReplacements')) {
             foreach (StringUtil::deserialize(Config::get('fs_charReplacements'), true) as $replacement) {
-                $regExpDelimiter = false === strpos($replacement['source'], '@') ? '@' : '/';
-                $pattern = $regExpDelimiter.$replacement['source'].$regExpDelimiter.($replacement['ignoreCase'] ? 'iu' : 'u');
+                $source = $replacement['source'];
+
+                $regExpDelimiter = false === strpos($source, '@') ? '@' : '/';
+                $pattern = $regExpDelimiter.$source.$regExpDelimiter.($replacement['ignoreCase'] ? 'iu' : 'u');
 
                 $string = preg_replace($pattern, $replacement['target'], $string);
             }
@@ -135,6 +139,7 @@ class FilenameSanitizerUtil
         $pathInfo = pathinfo($file->path);
 
         $filename = $pathInfo['filename'];
+
         $folder = str_replace($projectDir.'/', '', $file->dirname);
         $path = $folder.'/'.$this->sanitizeString($filename).'.'.$file->extension;
 

@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.1] - 2020-07-09
+
+- fixed mac os umlaut issue
+- fixed tests
+
 ## [2.2.0] - 2020-07-08
 
 - added handling for rare problematic situations in `SanitizeCommand` (e.g. sanitizing a file when a file of the sanitized name already exists) in order to prevent data loss
