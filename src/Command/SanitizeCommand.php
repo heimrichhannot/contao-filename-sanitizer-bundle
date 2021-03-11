@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2020 Heimrich & Hannot GmbH
+ * Copyright (c) 2021 Heimrich & Hannot GmbH
  *
  * @license LGPL-3.0-or-later
  */
@@ -11,6 +11,7 @@ namespace HeimrichHannot\FilenameSanitizerBundle\Command;
 use Contao\CoreBundle\Command\AbstractLockedCommand;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\File;
+use Contao\FilesModel;
 use Contao\Folder;
 use HeimrichHannot\FilenameSanitizerBundle\Util\FilenameSanitizerUtil;
 use HeimrichHannot\UtilsBundle\Container\ContainerUtil;
@@ -102,6 +103,14 @@ class SanitizeCommand extends AbstractLockedCommand
         $this->stringUtil = $stringUtil;
 
         parent::__construct($name);
+    }
+
+    public function findMultipleFoldersByFolder($strPath, array $arrOptions = [])
+    {
+        $t = 'tl_files';
+        $strPath = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $strPath);
+
+        return FilesModel::findBy(["$t.type='folder' AND $t.path LIKE ? AND $t.path NOT LIKE ?"], [$strPath.'/%', $strPath.'/%/%'], $arrOptions);
     }
 
     /**
@@ -325,7 +334,7 @@ class SanitizeCommand extends AbstractLockedCommand
             $result = array_merge($result, $this->retrieveFiles([], $fileChildren->fetchEach('path')));
         }
 
-        $folderChildren = $this->modelUtil->callModelMethod('tl_files', 'findMultipleFoldersByFolder', $record->path);
+        $folderChildren = $this->findMultipleFoldersByFolder($record->path);
 
         if (null !== $folderChildren) {
             $result = array_merge($result, $this->retrieveFiles([], $folderChildren->fetchEach('path')));

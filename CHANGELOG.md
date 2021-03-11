@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.2] - 2021-03-11
+
+- fixed missing method
+
 ## [2.2.1] - 2020-07-09
 
 - fixed mac os umlaut issue
