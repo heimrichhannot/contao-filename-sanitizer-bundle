@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2021-08-31
+
+- Added: php8 support
+
 ## [2.2.2] - 2021-03-11
 
 - fixed missing method
