@@ -9,7 +9,7 @@
 namespace HeimrichHannot\FilenameSanitizerBundle\Event;
 
 use Contao\File;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class BeforeFilenameSanitizationEvent extends Event
 {

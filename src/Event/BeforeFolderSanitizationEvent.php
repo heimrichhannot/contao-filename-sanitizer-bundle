@@ -9,7 +9,7 @@
 namespace HeimrichHannot\FilenameSanitizerBundle\Event;
 
 use Contao\Folder;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class BeforeFolderSanitizationEvent extends Event
 {

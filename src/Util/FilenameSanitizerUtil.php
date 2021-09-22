@@ -54,7 +54,7 @@ class FilenameSanitizerUtil
 
     public function sanitizeString(string $string)
     {
-        $event = $this->eventDispatcher->dispatch(BeforeStringSanitizationEvent::NAME, new BeforeStringSanitizationEvent($string));
+        $event = $this->eventDispatcher->dispatch(new BeforeStringSanitizationEvent($string), BeforeStringSanitizationEvent::NAME);
 
         // needed for macOS...
         $string = normalizer_normalize($event->getString());
@@ -117,7 +117,7 @@ class FilenameSanitizerUtil
             $string = trim($string, Config::get('fs_trimChars'));
         }
 
-        $event = $this->eventDispatcher->dispatch(AfterStringSanitizationEvent::NAME, new AfterStringSanitizationEvent($string));
+        $event = $this->eventDispatcher->dispatch(new AfterStringSanitizationEvent($string), AfterStringSanitizationEvent::NAME);
         $string = $event->getString();
 
         return $string;
@@ -131,7 +131,7 @@ class FilenameSanitizerUtil
 
         $projectDir = $this->containerUtil->getProjectDir();
 
-        $event = $this->eventDispatcher->dispatch(BeforeFilenameSanitizationEvent::NAME, new BeforeFilenameSanitizationEvent($file));
+        $event = $this->eventDispatcher->dispatch(new BeforeFilenameSanitizationEvent($file), BeforeFilenameSanitizationEvent::NAME);
 
         /** @var File $file */
         $file = $event->getFile();
@@ -160,14 +160,14 @@ class FilenameSanitizerUtil
             \Dbafs::addResource($path);
         }
 
-        $this->eventDispatcher->dispatch(AfterFilenameSanitizationEvent::NAME, new AfterFilenameSanitizationEvent($path));
+        $this->eventDispatcher->dispatch(new AfterFilenameSanitizationEvent($path), AfterFilenameSanitizationEvent::NAME);
     }
 
     public function sanitizeFolder(Folder $folder)
     {
         $projectDir = $this->containerUtil->getProjectDir();
 
-        $event = $this->eventDispatcher->dispatch(BeforeFolderSanitizationEvent::NAME, new BeforeFolderSanitizationEvent($folder));
+        $event = $this->eventDispatcher->dispatch(new BeforeFolderSanitizationEvent($folder), BeforeFolderSanitizationEvent::NAME);
 
         /** @var Folder $folder */
         $folder = $event->getFolder();
@@ -190,6 +190,6 @@ class FilenameSanitizerUtil
 
         $folder->renameTo($path);
 
-        $this->eventDispatcher->dispatch(AfterFolderSanitizationEvent::NAME, new AfterFolderSanitizationEvent($path));
+        $this->eventDispatcher->dispatch(new AfterFolderSanitizationEvent($path), AfterFolderSanitizationEvent::NAME);
     }
 }

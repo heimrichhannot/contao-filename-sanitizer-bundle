@@ -4,17 +4,21 @@
   "description": "This bundle offers functionality for sanitizing filenames, i.e. replacing unwanted characters like whitespaces, non-ascii characters, ... (e.g. while uploading them to the CMS).",
   "license": "LGPL-3.0-or-later",
   "require": {
-    "php": "^7.1|^8.0",
-    "contao/core-bundle": "^4.4",
-    "heimrichhannot/contao-multi-column-editor-bundle": "^2.0.3"
+    "php": "^7.4||^8.0",
+    "contao/core-bundle": "^4.9",
+    "heimrichhannot/contao-multi-column-editor-bundle": "^2.13",
+    "symfony/config": "^4.4||^5.0",
+    "symfony/console": "^4.4||^5.0",
+    "symfony/event-dispatcher-contracts": "^4.4||^5.0",
+    "symfony/http-kernel": "^4.4||^5.0"
   },
   "require-dev": {
     "contao/test-case": "1.1.*",
     "contao/manager-plugin": "^2.0",
     "friendsofphp/php-cs-fixer": "^2.2",
     "phpunit/phpunit": ">=6.0 <6.5",
-    "phpunit/phpunit-mock-objects": "^4.0|^5.0",
-    "phpunit/php-token-stream": "^1.4|^2.0|^3.0",
+    "phpunit/phpunit-mock-objects": "^4.0||^5.0",
+    "phpunit/php-token-stream": "^1.4||^2.0||^3.0",
     "php-http/guzzle6-adapter": "^1.1",
     "php-http/message-factory": "^1.0.2",
     "satooshi/php-coveralls": "^2.0",
