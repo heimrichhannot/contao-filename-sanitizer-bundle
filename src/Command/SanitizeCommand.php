@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2021 Heimrich & Hannot GmbH
+ * Copyright (c) 2022 Heimrich & Hannot GmbH
  *
  * @license LGPL-3.0-or-later
  */
@@ -243,15 +243,22 @@ class SanitizeCommand extends AbstractLockedCommand
 
             $this->io->write('Renaming "'.$path.'"... ');
 
+            // get path from FilesModel -> might have changed because of folder rename
+            $fileModel = FilesModel::findById($data['id']);
+
+            if (null === $fileModel) {
+                continue;
+            }
+
             if ('folder' === $data['type']) {
                 if (!$this->dryRun) {
-                    $folder = new Folder($path);
+                    $folder = new Folder($fileModel->path);
 
                     $this->util->sanitizeFolder($folder);
                 }
             } elseif ('file' === $data['type']) {
                 if (!$this->dryRun) {
-                    $file = new File($path);
+                    $file = new File($fileModel->path);
 
                     $this->util->sanitizeFile($file);
                 }

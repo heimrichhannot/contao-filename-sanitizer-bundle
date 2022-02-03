@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.1] - 2021-09-22
+
+- Fixed: bug in sanitize command concerning recursive paths
+
 ## [2.4.0] - 2021-09-22
 
 - Changed: moved to contao 4.9+
