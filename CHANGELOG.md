@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.3] - 2025-03-21
+- Fixed: configuration not shown in settings
+
 ## [2.4.2] - 2025-03-13
 
 - Fixed: missing dependency
